@@ -1,6 +1,7 @@
 import json, os, re, urllib.error, urllib.request
 from pathlib import Path
 from flask import Flask, jsonify, render_template, request
+from werkzeug.exceptions import HTTPException
 from dotenv import load_dotenv
 load_dotenv()
 app = Flask(__name__)
@@ -112,4 +113,18 @@ def generate():
     except (KeyError, IndexError, ValueError, json.JSONDecodeError, TypeError) as exc:
         app.logger.warning('Unexpected AI response: %s', exc)
         return jsonify({'error':'O provedor retornou uma resposta inesperada. Tente novamente.'}), 502
+@app.errorhandler(HTTPException)
+def handle_http_error(exc):
+    if request.path.startswith('/api/'):
+        return jsonify({'error': exc.description or 'A solicitação não pôde ser concluída.'}), exc.code
+    return exc.get_response()
+
+@app.errorhandler(Exception)
+def handle_unexpected_error(exc):
+    if request.path.startswith('/api/'):
+        app.logger.exception('Unexpected API error')
+        return jsonify({'error': 'Ocorreu um erro interno na API. Tente novamente; se persistir, confira os logs do Render.'}), 500
+    app.logger.exception('Unexpected application error')
+    return 'Erro interno do servidor. Consulte os logs do Render.', 500
+
 if __name__ == '__main__': app.run(host='0.0.0.0', port=int(os.getenv('PORT','5000')), debug=os.getenv('FLASK_DEBUG')=='1')

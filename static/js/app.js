@@ -22,6 +22,22 @@ const moduleDescriptions = {1:'Ideias, Reels, legendas, Stories e conteúdo que 
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
 const pad = number => String(number).padStart(2, '0');
 
+async function readJsonResponse(response) {
+  const raw = await response.text();
+  if (!raw.trim()) {
+    throw new Error(`O servidor retornou uma resposta vazia (HTTP ${response.status}). Tente novamente.`);
+  }
+  try {
+    return JSON.parse(raw);
+  } catch (_) {
+    const isHtml = /^(?:\s|\uFEFF)*(?:<!doctype\s+html|<html|<head|<body)/i.test(raw);
+    if (isHtml) {
+      throw new Error(`O servidor retornou uma página HTML em vez de JSON (HTTP ${response.status}). Atualize a página. Se continuar, confira os logs do Render e confirme se o último deploy terminou.`);
+    }
+    throw new Error(`A resposta do servidor não é JSON válido (HTTP ${response.status}). Tente novamente e confira os logs do Render se persistir.`);
+  }
+}
+
 function renderCommands() {
   const term = search.value.trim().toLocaleLowerCase('pt-BR');
   const moduleId = Number(filter.value);
@@ -128,7 +144,7 @@ form.addEventListener('submit', async event => {
   resultPanel.hidden = true;
   try {
     const response = await fetch('/api/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({command_id:selectedCommand.id, values})});
-    const data = await response.json();
+    const data = await readJsonResponse(response);
     if (!response.ok) throw new Error(data.error || 'Não foi possível gerar o resultado.');
     document.getElementById('result-title').textContent = data.title || selectedCommand.title;
     renderResult(data.output);
@@ -174,6 +190,6 @@ scrim.addEventListener('click', closeMobileMenu);
 document.querySelectorAll('.side-nav a').forEach(link => link.addEventListener('click', closeMobileMenu));
 
 fetch('/api/commands')
-  .then(response => { if (!response.ok) throw new Error('Falha ao carregar'); return response.json(); })
+  .then(async response => { const data = await readJsonResponse(response); if (!response.ok) throw new Error(data.error || `Falha ao carregar (HTTP ${response.status})`); return data; })
   .then(data => { commands = Array.isArray(data) ? data : []; refreshPersonalCounts(); renderCommands(); })
   .catch(() => { list.innerHTML = '<div class="loading">Não foi possível carregar a biblioteca. Atualize a página para tentar novamente.</div>'; document.getElementById('result-count').textContent = 'Biblioteca indisponível'; });
