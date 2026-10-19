@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}Página não encontrada{% endblock %}
+{% block content %}<section class="empty-state"><div class="eyebrow">ERRO 404</div><h1>Esta página não foi encontrada.</h1><a class="button button-primary" href="{{ url_for('main.index') }}">Voltar ao início</a></section>{% endblock %}

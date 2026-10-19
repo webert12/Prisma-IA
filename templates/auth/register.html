@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Criar empresa — BoraPedir{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand-mark">bp</div><div class="eyebrow">COMECE POR AQUI</div>
+    <h1>Seu negócio<br><span class="auth-title-accent">começa aqui.</span></h1>
+    <p class="muted">Crie o espaço da sua empresa e configure seu acesso de administrador.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="company_name">Nome da empresa</label>
+      <input id="company_name" name="company_name" required maxlength="120" autocomplete="organization">
+      <label for="business_type">Tipo de estabelecimento</label>
+      <select id="business_type" name="business_type" required>
+        <option value="outros">Outro tipo de negócio</option>
+        <option value="hamburgueria">Hamburgueria</option>
+        <option value="pizzaria">Pizzaria</option>
+        <option value="lanchonete">Lanchonete / salgados</option>
+        <option value="restaurante">Restaurante / marmitaria</option>
+        <option value="doceria">Doceria / confeitaria</option>
+        <option value="cafeteria">Cafeteria</option>
+        <option value="outros_alimentos">Outro negócio de alimentação</option>
+      </select>
+      <small class="form-help">Para negócios de alimentação, criaremos um catálogo inicial editável com produtos e preços sugeridos.</small>
+      <label for="whatsapp_number">WhatsApp da empresa (obrigatório)</label>
+      <input id="whatsapp_number" name="whatsapp_number" type="tel" required inputmode="tel" autocomplete="tel">
+      <small class="form-help">Use DDD e, de preferência, código do país 55. Este número receberá os pedidos.</small>
+      <label for="name">Seu nome</label>
+      <input id="name" name="name" required maxlength="120" autocomplete="name">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" required maxlength="255" autocomplete="email">
+      <label for="password">Senha</label>
+      <input id="password" name="password" type="password" required minlength="10" autocomplete="new-password">
+      <label for="confirm_password">Confirme a senha</label>
+      <input id="confirm_password" name="confirm_password" type="password" required minlength="10" autocomplete="new-password">
+      <button class="button button-primary button-full" type="submit">Criar empresa e acessar</button>
+    </form>
+    <p class="auth-bottom">Já possui conta? <a href="{{ url_for('auth.login') }}">Entrar</a></p>
+  </div>
+</section>
+{% endblock %}

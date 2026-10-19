@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#08111f">
+  <title>{% block title %}Catálogo — BoraPedir{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="public-customer-page">
+  <header class="topbar public-topbar" aria-label="Catálogo de compras">
+    <span class="brand" aria-label="BoraPedir"><span class="brand-mark"><span>bp</span></span><span>Bora<span class="brand-accent">Pedir</span><small>CATÁLOGO DE COMPRAS</small></span></span>
+  </header>
+  <main class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}<div class="messages">{% for category, message in messages %}<div class="alert alert-{{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="footer"><span class="footer-brand">BoraPedir</span><span>Faça seu pedido com facilidade.</span><span>© 2026 BoraPedir</span></footer>
+</body>
+</html>

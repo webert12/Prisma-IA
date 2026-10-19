@@ -1,0 +1,3 @@
+{% extends "base.html" %}
+{% block title %}Erro interno{% endblock %}
+{% block content %}<section class="empty-state"><div class="eyebrow">ERRO 500</div><h1>Algo deu errado.</h1><p class="muted">Tente novamente. Se o problema continuar, confira os logs do serviço.</p><a class="button button-primary" href="{{ url_for('main.index') }}">Voltar ao início</a></section>{% endblock %}

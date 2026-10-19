@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Entrar — BoraPedir{% endblock %}
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card">
+    <div class="auth-brand-mark">bp</div><div class="eyebrow">BEM-VINDO DE VOLTA</div>
+    <h1>Entre e continue<br><span class="auth-title-accent">de onde parou.</span></h1>
+    <p class="muted">Acesso exclusivo para clientes com conta liberada pelo administrador.</p>
+    <form method="post" class="form-stack">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <label for="email">E-mail</label>
+      <input id="email" name="email" type="email" autocomplete="email" required maxlength="255">
+      <label for="password">Senha</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required>
+      <button class="button button-primary button-full" type="submit">Entrar</button>
+    </form>
+  </div>
+</section>
+{% endblock %}
