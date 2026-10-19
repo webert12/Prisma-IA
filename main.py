@@ -46,19 +46,35 @@ def generate():
     try:
         if provider == 'gemini':
             api_key = os.getenv('GEMINI_API_KEY', '').strip()
-            model = os.getenv('GEMINI_MODEL', 'gemini-2.5-flash').strip()
+            model = os.getenv('GEMINI_MODEL', 'gemini-3.8-flash').strip()
             if not api_key:
                 return jsonify({'error':'Falta configurar GEMINI_API_KEY no arquivo .env local ou nas variáveis de ambiente do Render. Crie sua chave no Google AI Studio e mantenha-a privada.'}), 503
-            endpoint = f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={api_key}'
+            # Interactions API: endpoint atual recomendado para modelos Gemini recentes.
+            endpoint = 'https://generativelanguage.googleapis.com/v1beta/interactions'
             payload = json.dumps({
-                'systemInstruction': {'parts': [{'text': system}]},
-                'contents': [{'role': 'user', 'parts': [{'text': user_prompt}]}],
-                'generationConfig': {'temperature': 0.7, 'maxOutputTokens': 4096}
+                'model': model,
+                'input': user_prompt,
+                'system_instruction': system,
+                'store': False,
+                'generation_config': {'max_output_tokens': 4096}
             }).encode('utf-8')
-            req = urllib.request.Request(endpoint, data=payload, headers={'Content-Type':'application/json'}, method='POST')
-            with urllib.request.urlopen(req, timeout=75) as response:
+            req = urllib.request.Request(
+                endpoint,
+                data=payload,
+                headers={'Content-Type': 'application/json', 'x-goog-api-key': api_key},
+                method='POST'
+            )
+            with urllib.request.urlopen(req, timeout=90) as response:
                 result = json.loads(response.read().decode('utf-8'))
-            output = ''.join(part.get('text', '') for part in result['candidates'][0]['content']['parts']).strip()
+            if result.get('status') not in ('completed', 'incomplete'):
+                raise ValueError('A interação não foi concluída: ' + str(result.get('status', 'status desconhecido')))
+            output_parts = []
+            for step in result.get('steps', []):
+                if step.get('type') == 'model_output':
+                    for part in step.get('content', []):
+                        if part.get('type') == 'text' and part.get('text'):
+                            output_parts.append(part['text'])
+            output = '\n'.join(output_parts).strip()
         elif provider == 'openai_compatible':
             api_key, model = os.getenv('AI_API_KEY','').strip(), os.getenv('AI_MODEL','').strip()
             base_url = os.getenv('AI_API_BASE','').strip().rstrip('/')
@@ -76,15 +92,19 @@ def generate():
         return jsonify({'command_id':command['id'],'title':command['title'],'output':output})
     except urllib.error.HTTPError as exc:
         try:
-            body = json.loads(exc.read().decode()[:1600])
-            detail = body.get('error',{}).get('message','')
+            body = json.loads(exc.read().decode('utf-8', errors='replace')[:4000])
+            error_obj = body.get('error', {})
+            detail = error_obj.get('message', '') if isinstance(error_obj, dict) else str(error_obj)
+            if not detail:
+                detail = body.get('message', '')
         except Exception:
             detail = ''
         app.logger.warning('AI provider HTTP %s: %s', exc.code, detail)
         if exc.code in (401,403): message='A API não aceitou a chave. Confira se a chave foi copiada corretamente e se o projeto tem acesso ao modelo.'
         elif exc.code == 429: message='O limite gratuito ou a cota do provedor foi atingido. Aguarde a renovação da cota ou confira os limites no painel.'
-        elif exc.code == 404: message='O modelo configurado não foi encontrado ou não está disponível para sua chave. Confira GEMINI_MODEL no painel do provedor.'
-        else: message='O provedor de IA retornou um erro. Confira as variáveis de ambiente e o painel do provedor.'
+        elif exc.code == 404: message='O modelo configurado não foi encontrado ou não está disponível para sua chave. Confira GEMINI_MODEL no painel do Render.'
+        elif exc.code == 503: message='O serviço do Gemini está temporariamente ocupado. Aguarde alguns segundos e tente novamente.'
+        else: message='O provedor de IA retornou um erro. Confira as variáveis de ambiente e tente novamente.'
         return jsonify({'error':message}), 502
     except (urllib.error.URLError, TimeoutError) as exc:
         app.logger.warning('AI provider connection error: %s', exc)
