@@ -1,30 +1,25 @@
-# Prisma IA — SaaS Workspace v1.0
+# Prisma IA — Workspace SaaS v5
 
-Central de ferramentas de IA para pequenos negócios, com 100 comandos organizados em quatro módulos:
+Aplicação Flask responsiva para criação de conteúdo, vendas, WhatsApp e estratégia com 100 comandos e integração Gemini no servidor.
 
-1. Conteúdo que atrai
-2. IA para vendas
-3. IA para WhatsApp
-4. IA para estratégia
+## Melhorias da v5
+- Biblioteca de comandos com filtro por módulo e pesquisa.
+- Favoritos persistidos localmente no navegador, com filtro dedicado.
+- Atalhos de teclado: `Ctrl+K` para focar a busca e `Esc` para limpar a busca.
+- Registro local das últimas ferramentas utilizadas e contador de atividade.
+- Cards com estados de foco, hover e controles acessíveis.
+- Layout responsivo para computador, tablet e celular.
+- Respostas organizadas em seções e botões de copiar tudo ou por seção.
+- Segredos mantidos no servidor via variáveis de ambiente.
 
-## Interface
-- Dashboard profissional com navegação lateral e resumo da biblioteca.
-- Módulos apresentados em blocos visuais distintos.
-- Pesquisa por nome, objetivo e número; filtro por módulo.
-- Formulários dinâmicos e resultados organizados em seções com cópia por seção ou resultado completo.
-- Layout responsivo para celular, tablet, notebook e monitor.
-- Identidade visual em azul-marinho, roxo e azul elétrico.
+## Variáveis do Render
+- `GEMINI_API_KEY`: chave do Google AI Studio.
+- `GEMINI_MODEL`: modelo Gemini habilitado para sua chave (valor padrão no código: `gemini-3.8-flash`).
+- `SECRET_KEY`: chave secreta da aplicação.
 
-## Executar localmente
+Não coloque chaves de API no frontend ou no GitHub.
 
-```bash
-pip install -r requirements.txt
-cp .env.example .env
-python main.py
-```
+## Publicação pelo Termux
+Extraia `prisma_ia_saas_profissional_v5.zip` na pasta Download e execute o arquivo `atualizar_github_termux.sh` conforme `COMO_ENVIAR_NO_TERMUX.txt`.
 
-Configure `GEMINI_API_KEY` e `GEMINI_MODEL` nas variáveis de ambiente. Não publique chaves de API no GitHub. Para o Render, configure as variáveis no painel do serviço.
-
-## Deploy no Render
-
-O serviço usa `gunicorn main:app`, dependências de `requirements.txt` e health check em `/health`.
+O script publica a pasta extraída no repositório `webert12/Prisma-IA`, mantendo `.git` e o `.env` local. Se o GitHub pedir uma senha HTTPS, use um Personal Access Token.

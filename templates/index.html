@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#0b1020">
-  <meta name="description" content="Prisma IA — sua central inteligente para conteúdo, vendas, WhatsApp e estratégia.">
-  <title>Prisma IA — Central de inteligência</title>
+  <meta name="description" content="Prisma IA — workspace de inteligência artificial para conteúdo, vendas, WhatsApp e estratégia.">
+  <title>Prisma IA — Workspace inteligente</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -50,15 +50,15 @@
         </section>
 
         <section class="section-block library-section" id="biblioteca"><div class="section-head"><div><span class="section-kicker">BIBLIOTECA INTELIGENTE</span><h2>O que vamos <span>criar hoje?</span></h2><p>Encontre um comando pelo nome, objetivo ou módulo.</p></div><div class="library-total"><span class="live-dot"></span><strong>{{ command_count }}</strong> ferramentas</div></div>
-          <div class="library-toolbar"><label class="search-box"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="Buscar uma ferramenta..." autocomplete="off" aria-label="Buscar ferramenta"><kbd>⌕</kbd></label><div class="filter-wrap"><span>Filtrar por</span><select id="module-filter" aria-label="Filtrar por módulo"><option value="0">Todos os módulos</option><option value="1">Conteúdo que atrai</option><option value="2">IA para vendas</option><option value="3">IA para WhatsApp</option><option value="4">IA para estratégia</option></select></div></div>
-          <div class="library-summary"><span id="result-count">Carregando ferramentas…</span><span class="view-label"><i></i> Catálogo de comandos</span></div>
+          <div class="library-toolbar"><label class="search-box"><span class="search-icon">⌕</span><input id="search" type="search" placeholder="Buscar uma ferramenta..." autocomplete="off" aria-label="Buscar ferramenta"><kbd>Ctrl K</kbd></label><div class="filter-wrap"><span>Filtrar por</span><select id="module-filter" aria-label="Filtrar por módulo"><option value="0">Todos os módulos</option><option value="1">Conteúdo que atrai</option><option value="2">IA para vendas</option><option value="3">IA para WhatsApp</option><option value="4">IA para estratégia</option></select></div><button id="favorites-toggle" class="favorites-toggle" type="button" aria-pressed="false"><span>☆</span> Favoritos <b id="favorites-count">0</b></button></div>
+          <div class="library-summary"><span id="result-count">Carregando ferramentas…</span><span class="view-label"><i></i> Catálogo de comandos · <span id="recent-count">0 recentes</span></span></div>
           <div id="command-list" class="command-grid"><div class="loading"><span class="loading-spinner"></span>Preparando sua biblioteca…</div></div><div id="empty-state" class="empty-state" hidden><span>⌕</span><strong>Nenhum comando encontrado</strong><p>Tente outra busca ou selecione outro módulo.</p></div>
         </section>
 
         <section class="workbench" id="workbench" hidden><div class="workbench-head"><div><span class="section-kicker">ESTÚDIO DE CRIAÇÃO</span><h2 id="form-title">Sua ferramenta</h2><p id="form-objective"></p></div><button class="close-btn" id="close-form" type="button" aria-label="Fechar ferramenta">×</button></div><form id="tool-form"><div class="form-section-label"><span>01</span><div><strong>Personalize sua solicitação</strong><small>Preencha os detalhes para um resultado mais relevante.</small></div></div><div id="dynamic-fields" class="dynamic-fields"></div><div class="form-actions"><button class="primary-btn" type="submit" id="generate-btn"><span>✦</span> Gerar com inteligência artificial <b>→</b></button><span class="form-hint">Sua chave de API permanece protegida no servidor.</span></div></form><div id="generation-status" class="status" role="status" hidden></div><section id="result-panel" class="result-panel" hidden><div class="result-heading"><div><span class="section-kicker">02 · ENTREGA DA IA</span><h3 id="result-title"></h3><p class="result-intro">Seu resultado está organizado abaixo. Revise e adapte antes de usar.</p></div><button id="copy-result" class="secondary-btn" type="button"><span>▣</span> Copiar tudo</button></div><div id="result-output" class="result-content" aria-live="polite"></div><p class="result-disclaimer">Dica: confira nomes, preços, datas e condições antes de publicar.</p></section></section>
 
         <section class="bottom-banner"><div class="banner-mark">✦</div><div><span>PRISMA IA · WORKSPACE</span><h2>Menos tempo começando do zero.<br><em>Mais tempo fazendo acontecer.</em></h2></div><a href="#biblioteca">Encontrar meu próximo comando <span>→</span></a><div class="banner-glow"></div></section>
-        <footer><a class="footer-brand" href="#inicio">prisma<span>.ia</span></a><span>Inteligência para transformar ideias em ação.</span><span>Prisma IA · v1.0</span></footer>
+        <footer><a class="footer-brand" href="#inicio">prisma<span>.ia</span></a><span>Inteligência para transformar ideias em ação.</span><span>Prisma IA · Workspace v2</span></footer>
       </div>
     </main>
   </div>

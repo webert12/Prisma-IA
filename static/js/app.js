@@ -2,6 +2,12 @@
 
 let commands = [];
 let selectedCommand = null;
+let favoritesOnly = false;
+const favorites = new Set(readList('prisma-ia-favorites'));
+const recentCommands = readList('prisma-ia-recent');
+function readList(key) { try { const value = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } }
+function saveList(key, values) { try { localStorage.setItem(key, JSON.stringify(values)); } catch {} }
+function refreshPersonalCounts() { const el = document.getElementById('favorites-count'); if (el) el.textContent = favorites.size; const recent = document.getElementById('recent-count'); if (recent) recent.textContent = `${recentCommands.length} recentes`; }
 const list = document.getElementById('command-list');
 const search = document.getElementById('search');
 const filter = document.getElementById('module-filter');
@@ -20,6 +26,7 @@ function renderCommands() {
   const term = search.value.trim().toLocaleLowerCase('pt-BR');
   const moduleId = Number(filter.value);
   const filtered = commands.filter(command => (!moduleId || command.module === moduleId) &&
+    (!favoritesOnly || favorites.has(command.id)) &&
     (`${command.id} ${command.title} ${command.objective} ${command.module_title}`.toLocaleLowerCase('pt-BR').includes(term)));
   list.innerHTML = '';
   document.getElementById('empty-state').hidden = filtered.length > 0;
@@ -27,8 +34,9 @@ function renderCommands() {
   filtered.forEach(command => {
     const card = document.createElement('article');
     card.className = `command-card command-module-${command.module}`;
-    card.innerHTML = `<div class="command-top"><span class="command-number">${pad(command.id)}</span><span class="command-module">${esc(moduleNames[command.module] || command.module_title || 'Ferramenta')}</span></div><h3>${esc(command.title)}</h3><p>${esc(command.objective || 'Ferramenta prática para seu negócio.')}</p><button class="tool-link" type="button"><span>Abrir ferramenta</span><span aria-hidden="true">↗</span></button>`;
-    card.querySelector('button').addEventListener('click', () => openTool(command.id));
+    card.innerHTML = `<div class="command-top"><span class="command-number">${pad(command.id)}</span><span class="command-module">${esc(moduleNames[command.module] || command.module_title || 'Ferramenta')}</span><button class="favorite-btn ${favorites.has(command.id) ? 'is-favorite' : ''}" type="button" aria-label="${favorites.has(command.id) ? 'Remover dos' : 'Adicionar aos'} favoritos" aria-pressed="${favorites.has(command.id)}">${favorites.has(command.id) ? '★' : '☆'}</button></div><h3>${esc(command.title)}</h3><p>${esc(command.objective || 'Ferramenta prática para seu negócio.')}</p><button class="tool-link" type="button"><span>Abrir ferramenta</span><span aria-hidden="true">↗</span></button>`;
+    card.querySelector('.tool-link').addEventListener('click', () => openTool(command.id));
+    card.querySelector('.favorite-btn').addEventListener('click', event => { event.stopPropagation(); if (favorites.has(command.id)) favorites.delete(command.id); else favorites.add(command.id); saveList('prisma-ia-favorites', [...favorites]); refreshPersonalCounts(); renderCommands(); });
     list.appendChild(card);
   });
 }
@@ -36,6 +44,7 @@ function renderCommands() {
 function openTool(id) {
   selectedCommand = commands.find(command => command.id === id);
   if (!selectedCommand) return;
+  const previousIndex = recentCommands.indexOf(id); if (previousIndex >= 0) recentCommands.splice(previousIndex, 1); recentCommands.unshift(id); recentCommands.splice(8); saveList('prisma-ia-recent', recentCommands); refreshPersonalCounts();
   document.getElementById('form-title').textContent = `${pad(selectedCommand.id)} · ${selectedCommand.title}`;
   document.getElementById('form-objective').textContent = selectedCommand.objective || '';
   const fieldsContainer = document.getElementById('dynamic-fields');
@@ -147,6 +156,9 @@ document.getElementById('copy-result').addEventListener('click', async () => {
 
 search.addEventListener('input', renderCommands);
 filter.addEventListener('change', renderCommands);
+const favoritesToggle = document.getElementById('favorites-toggle');
+favoritesToggle.addEventListener('click', () => { favoritesOnly = !favoritesOnly; favoritesToggle.classList.toggle('active', favoritesOnly); favoritesToggle.setAttribute('aria-pressed', String(favoritesOnly)); favoritesToggle.querySelector('span').textContent = favoritesOnly ? '★' : '☆'; renderCommands(); });
+document.addEventListener('keydown', event => { if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') { event.preventDefault(); search.focus(); search.scrollIntoView({behavior:'smooth', block:'center'}); } if (event.key === 'Escape' && document.activeElement === search) { search.value = ''; renderCommands(); search.blur(); } });
 document.querySelectorAll('[data-module]').forEach(button => button.addEventListener('click', () => {
   filter.value = button.dataset.module;
   renderCommands();
@@ -163,5 +175,5 @@ document.querySelectorAll('.side-nav a').forEach(link => link.addEventListener('
 
 fetch('/api/commands')
   .then(response => { if (!response.ok) throw new Error('Falha ao carregar'); return response.json(); })
-  .then(data => { commands = Array.isArray(data) ? data : []; renderCommands(); })
+  .then(data => { commands = Array.isArray(data) ? data : []; refreshPersonalCounts(); renderCommands(); })
   .catch(() => { list.innerHTML = '<div class="loading">Não foi possível carregar a biblioteca. Atualize a página para tentar novamente.</div>'; document.getElementById('result-count').textContent = 'Biblioteca indisponível'; });
