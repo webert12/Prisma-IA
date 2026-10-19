@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
-NOME="prisma_ia_saas_profissional_v7"
+NOME="prisma_ia_saas_profissional_v8"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC="$SCRIPT_DIR/$NOME"
 REPO="$HOME/Prisma-IA"
@@ -26,7 +26,7 @@ if git diff --cached --quiet; then
   exit 0
 fi
 
-git commit -m "Melhora personalizacao e qualidade das respostas Prisma IA v7"
+git commit -m "Adiciona financeiro e bonus 30 dias ao Prisma IA v8"
 git push -u origin main
-echo "Prisma IA v7 enviado ao GitHub: https://github.com/webert12/Prisma-IA"
+echo "Prisma IA v8 enviado ao GitHub: https://github.com/webert12/Prisma-IA"
 echo "Acompanhe o deploy no Render. Se o Git pedir senha por HTTPS, use um Personal Access Token."

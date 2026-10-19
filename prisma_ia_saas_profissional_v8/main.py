@@ -15,7 +15,7 @@ MODULES = [
  {'id':3,'title':'IA para WhatsApp','description':'Atendimento, follow-up, orçamento, pós-venda e relacionamento.','range':'51–75'},
  {'id':4,'title':'IA para estratégia','description':'Público, posicionamento, diagnóstico, planejamento e crescimento.','range':'76–100'}]
 @app.get('/')
-def home(): return render_template('index.html', modules=MODULES, command_count=len(COMMANDS))
+def home(): return render_template('index.html', modules=MODULES, command_count=len(COMMANDS), supabase_url=os.getenv('SUPABASE_URL', '').strip(), supabase_anon_key=os.getenv('SUPABASE_ANON_KEY', '').strip())
 @app.get('/health')
 def health(): return jsonify({'status':'ok','app':'Prisma IA','commands':len(COMMANDS)})
 @app.get('/api/commands')

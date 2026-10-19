@@ -12,3 +12,7 @@ services:
         generateValue: true
       - key: FLASK_DEBUG
         value: "0"
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_ANON_KEY
+        sync: false
