@@ -1,41 +1,30 @@
-# Prisma IA — versão 0.4 (interface organizada + Gemini)
+# Prisma IA — SaaS Workspace v1.0
 
-## Publicação no Render
+Central de ferramentas de IA para pequenos negócios, com 100 comandos organizados em quatro módulos:
 
-Este projeto usa Flask e Google Gemini. A chave da API deve ficar somente nas variáveis de ambiente do Render, nunca no código-fonte nem no GitHub.
+1. Conteúdo que atrai
+2. IA para vendas
+3. IA para WhatsApp
+4. IA para estratégia
 
-No Render, abra o serviço `prisma-ia` → **Environment** e confira:
+## Interface
+- Dashboard profissional com navegação lateral e resumo da biblioteca.
+- Módulos apresentados em blocos visuais distintos.
+- Pesquisa por nome, objetivo e número; filtro por módulo.
+- Formulários dinâmicos e resultados organizados em seções com cópia por seção ou resultado completo.
+- Layout responsivo para celular, tablet, notebook e monitor.
+- Identidade visual em azul-marinho, roxo e azul elétrico.
 
-- `AI_PROVIDER` = `gemini`
-- `GEMINI_API_KEY` = sua chave privada do Google AI Studio
-- `GEMINI_MODEL` = `gemini-3.8-flash` (sem ponto no final)
-- `SECRET_KEY` = uma chave longa e aleatória
+## Executar localmente
 
-Build Command: `pip install -r requirements.txt`
-Start Command: `gunicorn main:app`
-Health Check Path: `/health`
+```bash
+pip install -r requirements.txt
+cp .env.example .env
+python main.py
+```
 
-O `.env.example` é somente um modelo. O `.gitignore` exclui `.env` para evitar o envio de chaves privadas.
+Configure `GEMINI_API_KEY` e `GEMINI_MODEL` nas variáveis de ambiente. Não publique chaves de API no GitHub. Para o Render, configure as variáveis no painel do serviço.
 
-## O que mudou nesta versão
+## Deploy no Render
 
-- Resultados divididos em cartões por seção, usando títulos detectados no texto gerado.
-- Listas e etapas exibidas como listas formatadas, em vez de um bloco único de texto.
-- Botão para copiar o resultado completo e botão para copiar cada seção individualmente.
-- Formulário e cartões refinados para leitura em celular e computador.
-- Mantidos os 100 comandos, as rotas Flask e a integração Gemini Interactions API.
-
-## Publicar pelo Termux
-
-Extraia `prisma_ia_profissional_v3.zip` em `Download`, deixando a pasta `prisma_ia_profissional_v3`. Depois execute o comando de publicação fornecido na conversa. O comando exclui `.env` e não deve enviar chaves privadas ao GitHub.
-
-## Endpoints
-
-- `/` — interface principal
-- `/health` — verificação de saúde
-- `/api/commands` — biblioteca de comandos
-- `/api/generate` — geração com IA
-
-## Observação
-
-Cadastro/login, autenticação Supabase, histórico persistente, limites por usuário e isolamento de dados ainda não estão conectados. O arquivo `supabase/schema.sql` é apenas preparação.
+O serviço usa `gunicorn main:app`, dependências de `requirements.txt` e health check em `/health`.
