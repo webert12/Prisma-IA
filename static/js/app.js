@@ -137,10 +137,16 @@ form.addEventListener('submit', async event => {
   if (!selectedCommand) return;
   const values = {};
   selectedCommand.fields.forEach((field, index) => { values[field] = document.getElementById(`field-${index}`)?.value || ''; });
+  const hasInput = Object.values(values).some(value => String(value).trim().length > 0);
+  if (selectedCommand.fields?.length && !hasInput) {
+    statusBox.hidden = false; statusBox.className = 'status error';
+    statusBox.textContent = 'Preencha pelo menos um campo com detalhes reais para a IA personalizar a resposta.';
+    return;
+  }
   generateBtn.disabled = true;
-  generateBtn.innerHTML = '<span>◌</span> Preparando seu resultado…';
+  generateBtn.innerHTML = '<span>◌</span> Analisando sua solicitação…';
   statusBox.hidden = false; statusBox.className = 'status';
-  statusBox.textContent = 'A IA está organizando sua resposta. Isso pode levar alguns segundos.';
+  statusBox.textContent = 'A IA está analisando os dados e criando uma resposta personalizada. Isso pode levar alguns segundos.';
   resultPanel.hidden = true;
   try {
     const response = await fetch('/api/generate', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({command_id:selectedCommand.id, values})});
@@ -150,7 +156,7 @@ form.addEventListener('submit', async event => {
     renderResult(data.output);
     resultPanel.hidden = false;
     statusBox.className = 'status success';
-    statusBox.textContent = 'Resultado gerado com sucesso. Revise e adapte antes de usar.';
+    statusBox.textContent = 'Resposta gerada pela IA agora. Confira os detalhes e adapte o que for específico do seu negócio antes de usar.';
     resultPanel.scrollIntoView({behavior:'smooth', block:'start'});
   } catch (error) {
     statusBox.className = 'status error';

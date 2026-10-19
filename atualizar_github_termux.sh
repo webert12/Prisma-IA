@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
-NOME="prisma_ia_saas_profissional_v6"
+NOME="prisma_ia_saas_profissional_v7"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC="$SCRIPT_DIR/$NOME"
 REPO="$HOME/Prisma-IA"
@@ -17,19 +17,16 @@ fi
 
 cd "$REPO"
 git remote set-url origin https://github.com/webert12/Prisma-IA.git
-
-# Substitui o código do projeto, preservando o histórico Git e o .env local.
 find "$REPO" -mindepth 1 -maxdepth 1 ! -name '.git' ! -name '.env' -exec rm -rf {} +
 cp -R "$SRC"/. "$REPO"/
 git add -A
 
 if git diff --cached --quiet; then
-  echo "Nenhuma alteração nova para enviar: o repositório já contém estes arquivos."
+  echo "Nenhuma alteração nova para enviar: os arquivos já são iguais."
   exit 0
 fi
 
-git commit -m "Corrige respostas JSON da API Prisma IA v6"
+git commit -m "Melhora personalizacao e qualidade das respostas Prisma IA v7"
 git push -u origin main
-
-echo "Prisma IA v6 enviado ao GitHub: https://github.com/webert12/Prisma-IA"
-echo "Se o GitHub solicitar senha por HTTPS, use um Personal Access Token."
+echo "Prisma IA v7 enviado ao GitHub: https://github.com/webert12/Prisma-IA"
+echo "Acompanhe o deploy no Render. Se o Git pedir senha por HTTPS, use um Personal Access Token."

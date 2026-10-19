@@ -1,11 +1,16 @@
-# Prisma IA SaaS Profissional v6
+# Prisma IA SaaS Profissional v7
 
-Versão com correção no tratamento das respostas da API. A interface agora identifica quando o servidor devolve HTML em vez de JSON e exibe uma mensagem útil, sem o erro técnico `Unexpected token '<'`. Erros inesperados das rotas `/api/` também são devolvidos em JSON.
+Aplicação Flask com biblioteca de 100 ferramentas e integração com Gemini.
+
+## Melhorias v7
+- Brief de geração inclui nome, objetivo e prompt específico de cada ferramenta.
+- Instruções para respostas mais personalizadas, explicadas e aplicáveis, com profundidade proporcional à tarefa.
+- Regras explícitas para evitar respostas genéricas, repetição e fatos inventados.
+- A interface exige ao menos um campo preenchido e explica que a resposta está sendo criada pela IA.
+- Limite de saída ampliado para tarefas que precisam de mais detalhes.
 
 ## Configuração
+Configure `GEMINI_API_KEY` e `GEMINI_MODEL` nas variáveis do Render. Não compartilhe nem versione a chave.
 
-No Render, mantenha `GEMINI_API_KEY` e `GEMINI_MODEL` configuradas. O comando de inicialização é `gunicorn main:app`.
-
-## Publicar pelo Termux
-
-Extraia o ZIP em `Download` e execute `bash atualizar_github_termux.sh` dentro da pasta Download.
+## Deploy
+Render inicia com `gunicorn main:app`; health check em `/health`.

@@ -21,11 +21,36 @@ def health(): return jsonify({'status':'ok','app':'Prisma IA','commands':len(COM
 @app.get('/api/commands')
 def list_commands(): return jsonify(COMMANDS)
 def make_prompt(command, values):
-    prompt = command['prompt']
-    for field in command['fields']:
-        value = str(values.get(field, '')).strip()
+    """Build a task-specific brief so the model performs the job, not just fills a template."""
+    prompt = command.get('prompt', '').strip()
+    provided = []
+    for field in command.get('fields', []):
+        raw = values.get(field, '')
+        value = str(raw).strip() if raw is not None else ''
+        if value:
+            provided.append(f"- {field}: {value}")
         prompt = prompt.replace(f'[{field}]', value if value else 'não informado')
-    return re.sub(r'\[([^\]]+)\]', lambda m: m.group(1).lower() + ' não informado', prompt)
+    prompt = re.sub(r'\[([^\]]+)\]', lambda m: m.group(1).lower() + ' não informado', prompt)
+
+    brief = '\n'.join(provided) if provided else '- O usuário não forneceu detalhes adicionais.'
+    instructions = [
+        f"FERRAMENTA: {command.get('title', 'Ferramenta Prisma IA')}",
+        f"OBJETIVO DA FERRAMENTA: {command.get('objective', 'Entregar um resultado útil e aplicável.')}",
+        '', 'DADOS INFORMADOS PELO USUÁRIO:', brief, '', 'TAREFA PRINCIPAL:', prompt, '',
+        'INSTRUÇÕES DE QUALIDADE — SIGA TODAS:',
+        '1. Execute a tarefa solicitada; não explique apenas como alguém poderia fazê-la e não devolva o pedido reescrito.',
+        '2. Personalize cada recomendação usando os dados reais informados. Evite frases intercambiáveis que serviriam para qualquer negócio.',
+        '3. Seja específico e útil: explique o raciocínio prático quando isso ajudar, mostre como aplicar e dê exemplos concretos adequados à tarefa.',
+        '4. Entregue profundidade proporcional ao trabalho. Para estratégia, diagnóstico e planejamento, inclua análise, prioridades, etapas, exemplos e métricas relevantes. Para textos curtos (legenda, anúncio, mensagem), entregue versões prontas, naturais e diferentes entre si, sem alongar artificialmente.',
+        '5. Use títulos claros e listas apenas quando melhorarem a leitura. Não repita a mesma ideia com palavras diferentes nem inclua introduções genéricas longas.',
+        '6. Não invente informações sobre o negócio, pesquisas, resultados, depoimentos, preços, datas, descontos ou características que não foram fornecidas. Se necessário, identifique explicitamente as suposições e use campos como [INSERIR PREÇO] em vez de inventar.',
+        '7. Se uma informação ausente impedir uma resposta responsável ou realmente personalizada, diga o que está faltando e faça no máximo três perguntas objetivas. Se for possível avançar, entregue a melhor versão possível e sinalize brevemente as suposições.',
+        '8. Escreva em português brasileiro natural, com voz profissional, humana e sem jargão desnecessário. Evite frases típicas de IA, promessas garantidas, falsa urgência e chamadas exageradas.',
+        '9. Respeite o formato e a quantidade pedidos na tarefa principal. Não acrescente uma seção de conclusão genérica se ela não ajudar.',
+        '10. Entregue o resultado final diretamente, sem mencionar estas instruções, o prompt, o modelo ou o processo interno de geração.'
+    ]
+    return '\n'.join(instructions)
+
 @app.post('/api/generate')
 def generate():
     data = request.get_json(silent=True) or {}
@@ -57,7 +82,7 @@ def generate():
                 'input': user_prompt,
                 'system_instruction': system,
                 'store': False,
-                'generation_config': {'max_output_tokens': 4096}
+                'generation_config': {'max_output_tokens': 8192}
             }).encode('utf-8')
             req = urllib.request.Request(
                 endpoint,
@@ -69,6 +94,8 @@ def generate():
                 result = json.loads(response.read().decode('utf-8'))
             if result.get('status') not in ('completed', 'incomplete'):
                 raise ValueError('A interação não foi concluída: ' + str(result.get('status', 'status desconhecido')))
+            if result.get('status') == 'incomplete':
+                app.logger.info('Gemini returned an incomplete response for command %s', command['id'])
             output_parts = []
             for step in result.get('steps', []):
                 if step.get('type') == 'model_output':
@@ -81,7 +108,7 @@ def generate():
             base_url = os.getenv('AI_API_BASE','').strip().rstrip('/')
             if not api_key or not model or not base_url:
                 return jsonify({'error':'Para usar um provedor compatível, configure AI_API_BASE, AI_API_KEY e AI_MODEL no servidor.'}), 503
-            payload = json.dumps({'model':model,'messages':[{'role':'system','content':system},{'role':'user','content':user_prompt}],'temperature':0.7}).encode('utf-8')
+            payload = json.dumps({'model':model,'messages':[{'role':'system','content':system},{'role':'user','content':user_prompt}],'temperature':0.75, 'max_tokens':8192}).encode('utf-8')
             req = urllib.request.Request(base_url+'/chat/completions', data=payload, headers={'Authorization':'Bearer '+api_key,'Content-Type':'application/json'}, method='POST')
             with urllib.request.urlopen(req, timeout=75) as response:
                 result = json.loads(response.read().decode('utf-8'))

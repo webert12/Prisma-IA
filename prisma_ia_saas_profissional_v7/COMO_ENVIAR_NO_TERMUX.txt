@@ -1,0 +1,16 @@
+PRISMA IA v7 — PUBLICAÇÃO PELO TERMUX
+
+1. Extraia este ZIP completo na pasta Download do celular.
+2. Abra o Termux e execute:
+
+termux-setup-storage
+pkg install unzip git -y
+cd ~/storage/shared/Download || exit 1
+unzip -o prisma_ia_saas_profissional_v7.zip -d ~/storage/shared/Download || exit 1
+cd ~/storage/shared/Download || exit 1
+bash atualizar_github_termux.sh
+
+O script usa a pasta extraída prisma_ia_saas_profissional_v7 e envia para:
+https://github.com/webert12/Prisma-IA
+
+Mantenha GEMINI_API_KEY e GEMINI_MODEL configuradas no Render. Nunca coloque chaves no GitHub.
