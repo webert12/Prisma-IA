@@ -1,9 +1,3 @@
-Flask
-gunicorn
-python-dotenv
-google-genai
-psycopg2-binary
-SQLAlchemy
-Flask-SQLAlchemy
-Werkzeug
-Flask-Login
+Flask>=3.0,<4.0
+gunicorn>=22.0,<24.0
+python-dotenv>=1.0,<2.0
