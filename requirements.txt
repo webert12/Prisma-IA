@@ -6,3 +6,4 @@ psycopg2-binary
 SQLAlchemy
 Flask-SQLAlchemy
 Werkzeug
+Flask-Login
