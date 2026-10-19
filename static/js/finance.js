@@ -103,15 +103,39 @@
     if (error) { setStatus(authStatus,error.message || 'Não foi possível entrar.','finance-error'); return; }
     setSignedIn(data.user); setStatus(authStatus,'Login realizado.','finance-ok');
   });
-  $('finance-signup').addEventListener('click', async () => {
-    if (!client) return;
-    const email=$('finance-email').value.trim(), password=$('finance-password').value;
-    if (!email || password.length < 6) { setStatus(authStatus,'Informe um e-mail válido e uma senha com pelo menos 6 caracteres.','finance-error'); return; }
-    setStatus(authStatus,'Criando conta…');
-    const {data,error} = await client.auth.signUp({email,password});
-    if (error) { setStatus(authStatus,error.message || 'Não foi possível criar a conta.','finance-error'); return; }
-    if (data.session) { setSignedIn(data.user); setStatus(authStatus,'Conta criada.','finance-ok'); }
-    else setStatus(authStatus,'Conta criada. Confira seu e-mail para confirmar o cadastro e depois entre no sistema.','finance-ok');
+  $('finance-signup').addEventListener('click', async (event) => {
+    event.preventDefault();
+    const button = $('finance-signup');
+    try {
+      if (!client) {
+        setStatus(authStatus,'O financeiro ainda não conseguiu conectar ao Supabase. Confira SUPABASE_URL e SUPABASE_ANON_KEY no Render e atualize a página.','finance-error');
+        return;
+      }
+      const email=$('finance-email').value.trim(), password=$('finance-password').value;
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setStatus(authStatus,'Digite um endereço de e-mail válido.','finance-error'); $('finance-email').focus(); return;
+      }
+      if (password.length < 6) {
+        setStatus(authStatus,'A senha precisa ter pelo menos 6 caracteres.','finance-error'); $('finance-password').focus(); return;
+      }
+      button.disabled = true;
+      setStatus(authStatus,'Criando conta… aguarde.');
+      const {data,error} = await client.auth.signUp({email,password});
+      if (error) {
+        setStatus(authStatus,`Não foi possível criar a conta: ${error.message || 'erro não identificado'}`,'finance-error');
+        return;
+      }
+      if (data.session && data.user) {
+        setSignedIn(data.user);
+        setStatus(authStatus,'Conta criada e conectada com sucesso.','finance-ok');
+      } else {
+        setStatus(authStatus,'Cadastro enviado. Se a confirmação de e-mail estiver habilitada no Supabase, confirme pelo e-mail recebido e depois entre. Se não receber, confira Spam.','finance-ok');
+      }
+    } catch (error) {
+      setStatus(authStatus,`Falha ao criar conta: ${error?.message || 'verifique sua conexão e as configurações do Supabase.'}`,'finance-error');
+    } finally {
+      button.disabled = false;
+    }
   });
   $('finance-logout').addEventListener('click', async () => { if (client) await client.auth.signOut(); setSignedIn(null); });
   $('finance-entry-form').addEventListener('submit', async e => {

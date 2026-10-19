@@ -1,6 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 set -e
-NOME="prisma_ia_saas_profissional_v8"
+NOME="prisma_ia_saas_profissional_v9"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SRC="$SCRIPT_DIR/$NOME"
 REPO="$HOME/Prisma-IA"
