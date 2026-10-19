@@ -1,47 +1,32 @@
-# Prisma IA — versão 0.2
+# Prisma IA — versão 0.3 (Gemini + Render)
 
-## Incluído
-- Biblioteca com 100 comandos dos quatro módulos do PDF KIT IA VENDEDORA (25 por módulo).
-- Busca, filtros por módulo e formulários criados a partir dos campos de cada comando.
-- Backend `/api/generate` que monta o comando e chama uma API compatível com OpenAI Chat Completions.
-- Resposta exibida na plataforma e botão para copiar.
-- Endpoint `/health` para teste e configuração inicial para Render.
+## Publicação no Render
 
-## Para gerar respostas reais
-É necessário configurar um provedor de IA compatível. O sistema não finge gerar respostas se a API não estiver configurada. O uso pode ter limites ou custos conforme o provedor/modelo; não há garantia de IA ilimitada e gratuita.
+Este projeto usa Flask e Google Gemini. A chave da API deve ser configurada como variável de ambiente, nunca escrita no código-fonte nem enviada ao GitHub.
 
-No `.env` local ou no painel Render → Environment, configure:
-- `AI_API_BASE`: URL base do provedor, normalmente terminando em `/v1`.
-- `AI_API_KEY`: chave privada do provedor.
-- `AI_MODEL`: nome exato de um modelo disponível para sua chave.
+No Render, abra o serviço `prisma-ia` → **Environment** e adicione:
 
-Use os valores oficiais do provedor escolhido. Não coloque chaves no HTML/JavaScript, não envie `.env` ao GitHub e não compartilhe chaves em mensagens.
+- `AI_PROVIDER` = `gemini`
+- `GEMINI_API_KEY` = sua chave privada do Google AI Studio
+- `GEMINI_MODEL` = `gemini-2.5-flash`
+- `SECRET_KEY` = uma chave longa e aleatória
 
-## Rodar no Termux
-Extraia este ZIP numa nova pasta ou faça backup antes de substituir a versão antiga:
+Build Command: `pip install -r requirements.txt`
+Start Command: `gunicorn main:app`
+Health Check Path: `/health`
 
-```bash
-pkg update -y
-pkg install python git unzip -y
-cd ~/storage/downloads
-unzip prisma_ia_mvp_v2.zip
-cd prisma_ia_mvp_v2
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-cp .env.example .env
-python main.py
-```
+O arquivo `.env.example` é apenas um modelo e não contém chaves reais. Para uso local, copie-o para `.env` e preencha `GEMINI_API_KEY`. O `.gitignore` exclui `.env` para evitar o envio de segredos.
 
-Acesse `http://127.0.0.1:5000`.
+## Enviar ao GitHub pelo Termux
 
-## Publicar no Render
-- Build Command: `pip install -r requirements.txt`
-- Start Command: `gunicorn main:app`
-- Health check path: `/health`
-- Configure `SECRET_KEY`, `AI_API_BASE`, `AI_API_KEY` e `AI_MODEL` nas variáveis de ambiente.
+Extraia o ZIP em `Download/prisma_ia_mvp_v2` e execute o script de publicação fornecido separadamente. Confirme o repositório e revise as alterações antes de enviar. Se o GitHub pedir senha, use um Personal Access Token; nunca cole esse token em conversas.
 
-Se já houver um serviço Render para a versão 0.1, envie os arquivos atualizados para o mesmo repositório. Faça backup antes de substituir arquivos.
+## Recursos
 
-## Próxima etapa necessária
-Cadastro/login, autenticação Supabase, perfil de negócio, histórico persistente, limites por usuário e isolamento de dados ainda não estão conectados nesta versão. Antes de abrir para clientes reais, vamos implementar e testar esses controles. O arquivo `supabase/schema.sql` é apenas preparação e não é usado pela versão atual.
+- Biblioteca com 100 comandos divididos em quatro módulos.
+- Backend Flask `/api/generate` para gerar respostas usando Gemini.
+- Endpoint `/health`.
+
+## Limitações desta versão
+
+Cadastro/login, autenticação Supabase, histórico persistente, limites por usuário e isolamento de dados ainda não estão conectados. O arquivo `supabase/schema.sql` é apenas preparação.
